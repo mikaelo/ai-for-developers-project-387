@@ -1,9 +1,13 @@
 {
   "version": "1.0.0",
   "scripts": {
-    "compile": "tsp compile ."
+    "compile": "tsp compile .",
+    "mock": "prism mock tsp-output/@typespec/openapi3/openapi.yaml --host 127.0.0.1 --port 4010",
+    "frontend:dev": "npm --prefix frontend run dev",
+    "frontend:build": "npm --prefix frontend run build"
   },
   "devDependencies": {
+    "@stoplight/prism-cli": "^5.14.2",
     "@typespec/compiler": "^0.66.0",
     "@typespec/http": "^0.66.0",
     "@typespec/openapi3": "^0.66.0"
