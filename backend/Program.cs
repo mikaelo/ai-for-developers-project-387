@@ -1,8 +1,15 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
+var port = Environment.GetEnvironmentVariable("PORT");
+
+if (!string.IsNullOrWhiteSpace(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
 
 builder.Services.AddCors(options =>
 {
@@ -29,6 +36,20 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("Frontend");
+
+var webRootPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+if (Directory.Exists(webRootPath))
+{
+    var webRootProvider = new PhysicalFileProvider(webRootPath);
+    app.UseDefaultFiles(new DefaultFilesOptions
+    {
+        FileProvider = webRootProvider,
+    });
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = webRootProvider,
+    });
+}
 
 app.MapGet("/admin/owner", (ICalendarStore store) => store.Owner);
 
@@ -60,6 +81,27 @@ app.MapPost("/bookings", (CreateBookingRequest request, ICalendarStore store) =>
     return result.Match(
         booking => Results.Ok(booking),
         error => Results.Json(error.Body, statusCode: error.StatusCode));
+});
+
+app.MapFallback(async context =>
+{
+    if (HttpMethods.IsGet(context.Request.Method) &&
+        (context.Request.Path == "/" ||
+         context.Request.Headers.Accept.Any(value => value?.Contains("text/html", StringComparison.OrdinalIgnoreCase) == true)))
+    {
+        var indexPath = Path.Combine(webRootPath, "index.html");
+        if (File.Exists(indexPath))
+        {
+            context.Response.ContentType = "text/html";
+            await context.Response.SendFileAsync(indexPath);
+            return;
+        }
+
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+
+    context.Response.StatusCode = StatusCodes.Status404NotFound;
 });
 
 app.Run();

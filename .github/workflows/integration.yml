@@ -45,3 +45,22 @@ jobs:
 
       - name: Run integration tests
         run: npm run integration:test
+
+      - name: Build Docker image
+        run: docker build -t call-calendar .
+
+      - name: Smoke test Docker image
+        run: |
+          docker run -d --rm --name call-calendar-smoke -e PORT=8080 -p 8080:8080 call-calendar
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/event-types > /tmp/event-types.json; then
+              break
+            fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:8080/ > /tmp/index.html
+          curl -fsS http://127.0.0.1:8080/admin/bookings > /tmp/admin-bookings.html
+          grep -q "Call Calendar" /tmp/index.html
+          grep -q "Call Calendar" /tmp/admin-bookings.html
+          grep -q "intro-call" /tmp/event-types.json
+          docker stop call-calendar-smoke

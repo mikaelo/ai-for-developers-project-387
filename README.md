@@ -45,3 +45,23 @@ Prism mock API is still available for contract-only frontend work:
 npm run compile
 npm run mock
 ```
+
+## Docker
+
+Build the production image:
+
+```bash
+docker build -t call-calendar .
+```
+
+Run the container. The application listens on the port from `PORT`:
+
+```bash
+docker run --rm -e PORT=8080 -p 8080:8080 call-calendar
+```
+
+Open `http://127.0.0.1:8080`.
+
+## Production
+
+Production URL: pending deployment
