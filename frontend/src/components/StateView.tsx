@@ -1,10 +1,11 @@
 import { Alert, Button, Center, Loader, Stack, Text } from "@mantine/core";
+import type { MantineColor } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
 
-export function LoadingState() {
+export function LoadingState({ color }: { color?: MantineColor } = {}) {
   return (
     <Center py="xl">
-      <Loader />
+      <Loader color={color} />
     </Center>
   );
 }
@@ -22,12 +23,12 @@ export function EmptyState({ title, description }: { title: string; description:
   );
 }
 
-export function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+export function ErrorState({ color = "red", message, onRetry }: { color?: MantineColor; message: string; onRetry: () => void }) {
   return (
-    <Alert color="red" icon={<IconAlertCircle size={18} />} title="Ошибка запроса">
+    <Alert color={color} icon={<IconAlertCircle size={18} />} title="Ошибка запроса">
       <Stack gap="sm">
         <Text size="sm">{message}</Text>
-        <Button variant="light" color="red" onClick={onRetry} w="fit-content">
+        <Button variant="light" color={color} onClick={onRetry} w="fit-content">
           Повторить
         </Button>
       </Stack>

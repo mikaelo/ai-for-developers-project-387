@@ -107,3 +107,22 @@ test("owner navigation is separated from the main menu", async ({ page }) => {
   await page.getByRole("link", { name: "Открыть встречи" }).click();
   await expect(page).toHaveURL(/\/admin\/bookings$/);
 });
+
+test("guest can switch booking pages to monochrome theme", async ({ page }) => {
+  await page.goto("/booking");
+
+  const monochromeSwitch = page.getByLabel("Монохром");
+  await expect(page.getByText("Монохром")).toBeVisible();
+  await expect(monochromeSwitch).not.toBeChecked();
+  await expect(page.locator("body")).toHaveAttribute("data-client-theme", "color");
+
+  await page.getByText("Монохром").click();
+  await expect(monochromeSwitch).toBeChecked();
+  await expect(page.locator("body")).toHaveAttribute("data-client-theme", "monochrome");
+
+  await expect(page.getByRole("link", { name: "Выбрать слот" }).first()).toBeVisible();
+
+  await page.goto("/admin");
+  await expect(page.getByText("Монохром")).toBeHidden();
+  await expect(page.locator("body")).toHaveAttribute("data-client-theme", "color");
+});

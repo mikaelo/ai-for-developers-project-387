@@ -9,6 +9,7 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
+import type { MantineColor } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { IconCalendarCheck, IconClock } from "@tabler/icons-react";
@@ -21,13 +22,14 @@ import { formatDate, formatTimeRange } from "../format";
 import { useAsyncData } from "../hooks";
 import type { Slot } from "../types";
 
-export function BookingPage() {
+export function BookingPage({ color }: { color: MantineColor }) {
   const { eventTypeId = "" } = useParams();
   const navigate = useNavigate();
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const loadSlots = useCallback(() => api.listAvailableSlots(eventTypeId), [eventTypeId]);
   const { data: slots, error, loading, reload } = useAsyncData(loadSlots);
+  const errorColor = color === "gray" ? "gray" : "red";
   const form = useForm({
     initialValues: { name: "", email: "" },
     validate: {
@@ -57,14 +59,14 @@ export function BookingPage() {
         },
       });
       notifications.show({
-        color: "teal",
+        color,
         title: "Бронирование создано",
         message: "Встреча успешно добавлена в календарь.",
       });
       navigate("/booking");
     } catch (requestError) {
       notifications.show({
-        color: "red",
+        color: errorColor,
         title: "Не удалось создать бронирование",
         message: getErrorMessage(requestError),
       });
@@ -80,8 +82,8 @@ export function BookingPage() {
         <Text c="dimmed">Доступны слоты на ближайшие 14 дней.</Text>
       </div>
 
-      {loading && <LoadingState />}
-      {error && <ErrorState message={error} onRetry={reload} />}
+      {loading && <LoadingState color={color} />}
+      {error && <ErrorState color={errorColor} message={error} onRetry={reload} />}
       {slots?.length === 0 && <EmptyState title="Слотов нет" description="Для этого типа события нет свободного времени." />}
 
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
@@ -97,6 +99,7 @@ export function BookingPage() {
                       data-testid="slot-button"
                       data-start-at={slot.startAt}
                       variant={selectedSlot?.startAt === slot.startAt ? "filled" : "light"}
+                      color={color}
                       leftSection={<IconClock size={15} />}
                       onClick={() => setSelectedSlot(slot)}
                     >
@@ -114,11 +117,15 @@ export function BookingPage() {
             <Stack>
               <Group justify="space-between">
                 <Title order={3}>Данные гостя</Title>
-                {selectedSlot && <Badge leftSection={<IconCalendarCheck size={12} />}>Слот выбран</Badge>}
+                {selectedSlot && (
+                  <Badge color={color} leftSection={<IconCalendarCheck size={12} />}>
+                    Слот выбран
+                  </Badge>
+                )}
               </Group>
               <TextInput label="Имя" placeholder="Анна" {...form.getInputProps("name")} />
               <TextInput label="Email" placeholder="anna@example.com" {...form.getInputProps("email")} />
-              <Button type="submit" loading={submitting} disabled={!selectedSlot}>
+              <Button color={color} type="submit" loading={submitting} disabled={!selectedSlot}>
                 Забронировать
               </Button>
             </Stack>
