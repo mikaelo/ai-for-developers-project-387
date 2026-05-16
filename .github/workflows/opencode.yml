@@ -33,3 +33,30 @@ jobs:
         with:
           model: anthropic/claude-sonnet-4-6
           use_github_token: true
+
+      - name: Fix opencode share link
+        if: always()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo, number: issue_number } = context.issue;
+            const runPath = `/${owner}/${repo}/actions/runs/${context.runId}`;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+
+            for (const comment of comments) {
+              if (!comment.body?.includes("https://opencode.ai/s/") || !comment.body.includes(runPath)) {
+                continue;
+              }
+
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: comment.id,
+                body: comment.body.replaceAll("https://opencode.ai/s/", "https://opncd.ai/share/"),
+              });
+            }
