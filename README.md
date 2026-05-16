@@ -67,4 +67,4 @@ For example, `GET /api/event-types` returns public event types as JSON.
 
 ## Production
 
-Production URL: pending deployment
+Production URL: https://ai-for-developers-project-386-l3lc.onrender.com
