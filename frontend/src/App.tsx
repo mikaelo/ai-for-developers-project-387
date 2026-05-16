@@ -33,7 +33,7 @@ export function App() {
               </div>
             </Group>
             <Text c="dimmed" size="sm">
-              API: {import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:4010"}
+              API: {import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:5080"}
             </Text>
           </Group>
         </Container>

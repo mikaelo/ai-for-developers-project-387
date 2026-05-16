@@ -4,7 +4,9 @@
     "compile": "tsp compile .",
     "mock": "prism mock tsp-output/@typespec/openapi3/openapi.yaml --host 127.0.0.1 --port 4010",
     "frontend:dev": "npm --prefix frontend run dev",
-    "frontend:build": "npm --prefix frontend run build"
+    "frontend:build": "npm --prefix frontend run build",
+    "backend:run": "dotnet run --project backend/CallCalendar.Api.csproj --urls http://127.0.0.1:5080",
+    "backend:test": "dotnet test backend.tests/CallCalendar.Api.Tests.csproj"
   },
   "devDependencies": {
     "@stoplight/prism-cli": "^5.14.2",
