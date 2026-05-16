@@ -51,11 +51,11 @@ if (Directory.Exists(webRootPath))
     });
 }
 
-app.MapGet("/admin/owner", (ICalendarStore store) => store.Owner);
+app.MapGet("/api/admin/owner", (ICalendarStore store) => store.Owner);
 
-app.MapGet("/admin/event-types", (ICalendarStore store) => store.ListEventTypes());
+app.MapGet("/api/admin/event-types", (ICalendarStore store) => store.ListEventTypes());
 
-app.MapPost("/admin/event-types", (CreateEventTypeRequest request, ICalendarStore store) =>
+app.MapPost("/api/admin/event-types", (CreateEventTypeRequest request, ICalendarStore store) =>
 {
     var result = store.CreateEventType(request);
     return result.Match(
@@ -63,11 +63,11 @@ app.MapPost("/admin/event-types", (CreateEventTypeRequest request, ICalendarStor
         error => Results.Json(error.Body, statusCode: error.StatusCode));
 });
 
-app.MapGet("/admin/bookings/upcoming", (ICalendarStore store) => store.ListUpcomingBookings());
+app.MapGet("/api/admin/bookings/upcoming", (ICalendarStore store) => store.ListUpcomingBookings());
 
-app.MapGet("/event-types", (ICalendarStore store) => store.ListPublicEventTypes());
+app.MapGet("/api/event-types", (ICalendarStore store) => store.ListPublicEventTypes());
 
-app.MapGet("/event-types/{eventTypeId}/slots", (string eventTypeId, ICalendarStore store) =>
+app.MapGet("/api/event-types/{eventTypeId}/slots", (string eventTypeId, ICalendarStore store) =>
 {
     var result = store.ListAvailableSlots(eventTypeId);
     return result.Match(
@@ -75,7 +75,7 @@ app.MapGet("/event-types/{eventTypeId}/slots", (string eventTypeId, ICalendarSto
         error => Results.Json(error.Body, statusCode: error.StatusCode));
 });
 
-app.MapPost("/bookings", (CreateBookingRequest request, ICalendarStore store) =>
+app.MapPost("/api/bookings", (CreateBookingRequest request, ICalendarStore store) =>
 {
     var result = store.CreateBooking(request);
     return result.Match(
@@ -84,6 +84,8 @@ app.MapPost("/bookings", (CreateBookingRequest request, ICalendarStore store) =>
 });
 
 app.MapGet("/", ServeFrontendApp);
+app.MapGet("/booking", ServeFrontendApp);
+app.MapGet("/booking/{eventTypeId}", ServeFrontendApp);
 app.MapGet("/admin", ServeFrontendApp);
 app.MapGet("/admin/bookings", ServeFrontendApp);
 app.MapGet("/event-types/{eventTypeId}", ServeFrontendApp);
@@ -91,9 +93,9 @@ app.MapGet("/event-types/{eventTypeId}", ServeFrontendApp);
 app.MapFallback(async context =>
 {
     if (HttpMethods.IsGet(context.Request.Method) &&
-        context.Request.Headers.Accept.Any(value => value?.Contains("text/html", StringComparison.OrdinalIgnoreCase) == true))
+        !context.Request.Path.StartsWithSegments("/api"))
     {
-        await SendFrontendApp(context, webRootPath);
+        await ServeFrontendApp(context).ExecuteAsync(context);
         return;
     }
 
@@ -102,21 +104,16 @@ app.MapFallback(async context =>
 
 app.Run();
 
-static Task ServeFrontendApp(HttpContext context) => SendFrontendApp(
-    context,
-    Path.Combine(context.RequestServices.GetRequiredService<IWebHostEnvironment>().ContentRootPath, "wwwroot"));
-
-static async Task SendFrontendApp(HttpContext context, string webRootPath)
+static IResult ServeFrontendApp(HttpContext context)
 {
+    var webRootPath = Path.Combine(
+        context.RequestServices.GetRequiredService<IWebHostEnvironment>().ContentRootPath,
+        "wwwroot");
     var indexPath = Path.Combine(webRootPath, "index.html");
-    if (!File.Exists(indexPath))
-    {
-        context.Response.StatusCode = StatusCodes.Status404NotFound;
-        return;
-    }
 
-    context.Response.ContentType = "text/html";
-    await context.Response.SendFileAsync(indexPath);
+    return File.Exists(indexPath)
+        ? Results.File(indexPath, "text/html")
+        : Results.NotFound();
 }
 
 public partial class Program;

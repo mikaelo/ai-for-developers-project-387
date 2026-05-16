@@ -10,7 +10,7 @@ import {
   rem,
 } from "@mantine/core";
 import { IconCalendarEvent, IconSettings } from "@tabler/icons-react";
-import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { AdminBookingsPage } from "./pages/AdminBookingsPage";
 import { AdminEventTypesPage } from "./pages/AdminEventTypesPage";
 import { AdminHomePage } from "./pages/AdminHomePage";
@@ -57,7 +57,7 @@ export function App() {
       <AppShell.Navbar p="md">
         <NavLink
           component={Link}
-          to="/event-types"
+          to="/booking"
           label="Бронирование"
           leftSection={<IconCalendarEvent style={{ width: rem(18), height: rem(18) }} />}
           active={!location.pathname.startsWith("/admin")}
@@ -67,9 +67,11 @@ export function App() {
       <AppShell.Main>
         <Container size="xl">
           <Routes>
-            <Route path="/" element={<Navigate to="/event-types" replace />} />
-            <Route path="/event-types" element={<EventTypesPage />} />
-            <Route path="/event-types/:eventTypeId" element={<BookingPage />} />
+            <Route path="/" element={<Navigate to="/booking" replace />} />
+            <Route path="/booking" element={<EventTypesPage />} />
+            <Route path="/booking/:eventTypeId" element={<BookingPage />} />
+            <Route path="/event-types" element={<Navigate to="/booking" replace />} />
+            <Route path="/event-types/:eventTypeId" element={<LegacyEventTypeRedirect />} />
             <Route path="/admin" element={<AdminHomePage />} />
             <Route path="/admin/event-types" element={<AdminEventTypesPage />} />
             <Route path="/admin/bookings" element={<AdminBookingsPage />} />
@@ -78,4 +80,10 @@ export function App() {
       </AppShell.Main>
     </AppShell>
   );
+}
+
+function LegacyEventTypeRedirect() {
+  const { eventTypeId = "" } = useParams();
+
+  return <Navigate to={`/booking/${eventTypeId}`} replace />;
 }

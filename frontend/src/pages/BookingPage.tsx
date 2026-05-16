@@ -61,7 +61,7 @@ export function BookingPage() {
         title: "Бронирование создано",
         message: "Встреча успешно добавлена в календарь.",
       });
-      navigate("/event-types");
+      navigate("/booking");
     } catch (requestError) {
       notifications.show({
         color: "red",

@@ -26,6 +26,7 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: {
+      Accept: "application/json",
       "Content-Type": "application/json",
       ...init?.headers,
     },
@@ -50,19 +51,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  getOwner: () => request<Owner>("/admin/owner"),
-  listAdminEventTypes: () => request<EventType[]>("/admin/event-types"),
+  getOwner: () => request<Owner>("/api/admin/owner"),
+  listAdminEventTypes: () => request<EventType[]>("/api/admin/event-types"),
   createEventType: (payload: CreateEventTypeRequest) =>
-    request<EventType>("/admin/event-types", {
+    request<EventType>("/api/admin/event-types", {
       method: "POST",
       body: JSON.stringify(payload),
     }),
-  listUpcomingBookings: () => request<Booking[]>("/admin/bookings/upcoming"),
-  listPublicEventTypes: () => request<PublicEventType[]>("/event-types"),
+  listUpcomingBookings: () => request<Booking[]>("/api/admin/bookings/upcoming"),
+  listPublicEventTypes: () => request<PublicEventType[]>("/api/event-types"),
   listAvailableSlots: (eventTypeId: string) =>
-    request<Slot[]>(`/event-types/${encodeURIComponent(eventTypeId)}/slots`),
+    request<Slot[]>(`/api/event-types/${encodeURIComponent(eventTypeId)}/slots`),
   createBooking: (payload: CreateBookingRequest) =>
-    request<Booking>("/bookings", {
+    request<Booking>("/api/bookings", {
       method: "POST",
       body: JSON.stringify(payload),
     }),

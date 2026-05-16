@@ -62,6 +62,9 @@ docker run --rm -e PORT=8080 -p 8080:8080 call-calendar
 
 Open `http://127.0.0.1:8080`.
 
+The production UI is served from `/booking`, and API endpoints are served under `/api`.
+For example, `GET /api/event-types` returns public event types as JSON.
+
 ## Production
 
 Production URL: pending deployment

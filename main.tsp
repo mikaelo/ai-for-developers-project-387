@@ -7,6 +7,7 @@ using TypeSpec.Http;
   title: "Call Calendar API",
 })
 @server("https://api.example.com", "Production endpoint")
+@route("/api")
 namespace CallCalendar;
 
 alias EventTypeId = string;

@@ -24,7 +24,7 @@ export default defineConfig({
   webServer: [
     {
       command: "npm run backend:run",
-      url: `${backendUrl}/event-types`,
+      url: `${backendUrl}/api/event-types`,
       cwd: "..",
       reuseExistingServer: false,
       timeout: 120_000,

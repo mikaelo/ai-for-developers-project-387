@@ -35,7 +35,7 @@ export function EventTypesPage() {
                     {eventType.description}
                   </Text>
                 </Stack>
-                <Button component={Link} to={`/event-types/${eventType.id}`} rightSection={<IconArrowRight size={16} />}>
+                <Button component={Link} to={`/booking/${eventType.id}`} rightSection={<IconArrowRight size={16} />}>
                   Выбрать слот
                 </Button>
               </Stack>

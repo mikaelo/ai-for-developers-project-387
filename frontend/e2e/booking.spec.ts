@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("guest books an intro call and owner sees it", async ({ page, request }) => {
-  await page.goto("/event-types");
+  await page.goto("/booking");
 
   const introCard = page.getByTestId("event-type-intro-call");
   await expect(introCard).toContainText("Intro call");
@@ -19,9 +19,9 @@ test("guest books an intro call and owner sees it", async ({ page, request }) =>
   await page.getByRole("button", { name: "Забронировать" }).click();
 
   await expect(page.getByText("Бронирование создано")).toBeVisible();
-  await expect(page).toHaveURL(/\/event-types$/);
+  await expect(page).toHaveURL(/\/booking$/);
 
-  const duplicateResponse = await request.post("http://127.0.0.1:5080/bookings", {
+  const duplicateResponse = await request.post("http://127.0.0.1:5080/api/bookings", {
     data: {
       eventTypeId: "intro-call",
       startAt,
@@ -46,16 +46,30 @@ test("guest books an intro call and owner sees it", async ({ page, request }) =>
 });
 
 test("direct frontend routes render without 404", async ({ page, request }) => {
-  const eventTypeResponse = await page.goto("/event-types/consultation");
+  const bookingListResponse = await page.goto("/booking");
+  expect(bookingListResponse?.status()).not.toBe(404);
+  await expect(page.getByRole("heading", { name: "Выберите тип звонка" })).toBeVisible();
+
+  const eventTypeResponse = await page.goto("/booking/consultation");
   expect(eventTypeResponse?.status()).not.toBe(404);
   await expect(page.getByRole("heading", { name: "Свободные слоты" })).toBeVisible();
   await expect(page.getByTestId("slot-button").first()).toBeVisible();
+
+  const legacyListResponse = await page.goto("/event-types");
+  expect(legacyListResponse?.status()).not.toBe(404);
+  await expect(page).toHaveURL(/\/booking$/);
+  await expect(page.getByRole("heading", { name: "Выберите тип звонка" })).toBeVisible();
+
+  const legacyEventTypeResponse = await page.goto("/event-types/consultation");
+  expect(legacyEventTypeResponse?.status()).not.toBe(404);
+  await expect(page).toHaveURL(/\/booking\/consultation$/);
+  await expect(page.getByRole("heading", { name: "Свободные слоты" })).toBeVisible();
 
   const adminBookingsResponse = await page.goto("/admin/bookings");
   expect(adminBookingsResponse?.status()).not.toBe(404);
   await expect(page.getByRole("heading", { name: "Предстоящие встречи" })).toBeVisible();
 
-  const eventTypesApiResponse = await request.get("http://127.0.0.1:5080/event-types");
+  const eventTypesApiResponse = await request.get("http://127.0.0.1:5080/api/event-types");
   expect(eventTypesApiResponse.status()).toBe(200);
   expect(eventTypesApiResponse.headers()["content-type"]).toContain("application/json");
   const eventTypes = await eventTypesApiResponse.json();
@@ -65,7 +79,7 @@ test("direct frontend routes render without 404", async ({ page, request }) => {
     ]),
   );
 
-  const slotsApiResponse = await request.get("http://127.0.0.1:5080/event-types/consultation/slots");
+  const slotsApiResponse = await request.get("http://127.0.0.1:5080/api/event-types/consultation/slots");
   expect(slotsApiResponse.status()).toBe(200);
   expect(slotsApiResponse.headers()["content-type"]).toContain("application/json");
   const slots = await slotsApiResponse.json();
@@ -74,7 +88,7 @@ test("direct frontend routes render without 404", async ({ page, request }) => {
 });
 
 test("owner navigation is separated from the main menu", async ({ page }) => {
-  await page.goto("/event-types");
+  await page.goto("/booking");
 
   const navigation = page.locator("nav");
   await expect(navigation).toContainText("Бронирование");
