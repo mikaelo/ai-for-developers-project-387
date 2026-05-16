@@ -72,3 +72,24 @@ test("direct frontend routes render without 404", async ({ page, request }) => {
   expect(slots.length).toBeGreaterThan(0);
   expect(slots[0]).toEqual(expect.objectContaining({ eventTypeId: "consultation" }));
 });
+
+test("owner navigation is separated from the main menu", async ({ page }) => {
+  await page.goto("/event-types");
+
+  const navigation = page.locator("nav");
+  await expect(navigation).toContainText("Бронирование");
+  await expect(navigation).not.toContainText("Владелец");
+  await expect(navigation).not.toContainText("Типы событий");
+  await expect(navigation).not.toContainText("Встречи");
+
+  await page.getByLabel("Открыть страницу владельца").click();
+  await expect(page).toHaveURL(/\/admin$/);
+  await expect(page.getByRole("heading", { name: "Владелец календаря" })).toBeVisible();
+
+  await page.getByRole("link", { name: "Открыть типы событий" }).click();
+  await expect(page).toHaveURL(/\/admin\/event-types$/);
+
+  await page.goto("/admin");
+  await page.getByRole("link", { name: "Открыть встречи" }).click();
+  await expect(page).toHaveURL(/\/admin\/bookings$/);
+});

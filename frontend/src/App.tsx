@@ -1,10 +1,12 @@
 import {
   AppShell,
+  ActionIcon,
   Container,
   Group,
   NavLink,
   Text,
   Title,
+  Tooltip,
   rem,
 } from "@mantine/core";
 import { IconCalendarEvent, IconSettings } from "@tabler/icons-react";
@@ -32,9 +34,22 @@ export function App() {
                 </Text>
               </div>
             </Group>
-            <Text c="dimmed" size="sm">
-              API: {import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:5080"}
-            </Text>
+            <Group gap="sm">
+              <Text c="dimmed" size="sm">
+                API: {import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:5080"}
+              </Text>
+              <Tooltip label="Страница владельца">
+                <ActionIcon
+                  aria-label="Открыть страницу владельца"
+                  component={Link}
+                  to="/admin"
+                  variant={location.pathname.startsWith("/admin") ? "filled" : "light"}
+                  size="lg"
+                >
+                  <IconSettings size={20} />
+                </ActionIcon>
+              </Tooltip>
+            </Group>
           </Group>
         </Container>
       </AppShell.Header>
@@ -47,15 +62,6 @@ export function App() {
           leftSection={<IconCalendarEvent style={{ width: rem(18), height: rem(18) }} />}
           active={!location.pathname.startsWith("/admin")}
         />
-        <NavLink
-          component={Link}
-          to="/admin"
-          label="Владелец"
-          leftSection={<IconSettings style={{ width: rem(18), height: rem(18) }} />}
-          active={location.pathname.startsWith("/admin")}
-        />
-        <NavLink component={Link} to="/admin/event-types" label="Типы событий" pl="xl" />
-        <NavLink component={Link} to="/admin/bookings" label="Встречи" pl="xl" />
       </AppShell.Navbar>
 
       <AppShell.Main>
