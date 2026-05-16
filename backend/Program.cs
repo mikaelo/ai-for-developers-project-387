@@ -154,6 +154,11 @@ public sealed class InMemoryCalendarStore : ICalendarStore
             "Consultation",
             "Detailed consultation call.",
             60));
+        eventTypes.TryAdd("daily", new EventType(
+            "daily",
+            "Daily",
+            "Short daily sync call.",
+            15));
     }
 
     public Owner Owner { get; }
