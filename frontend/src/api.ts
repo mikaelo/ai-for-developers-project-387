@@ -8,8 +8,19 @@ import type {
   PublicEventType,
   Slot,
 } from "./types";
+import type { paths } from "./generated/api-types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+
+const routes = {
+  getOwner: "/api/admin/owner",
+  listAdminEventTypes: "/api/admin/event-types",
+  createEventType: "/api/admin/event-types",
+  listUpcomingBookings: "/api/admin/bookings/upcoming",
+  listPublicEventTypes: "/api/event-types",
+  listAvailableSlots: "/api/event-types/{eventTypeId}/slots",
+  createBooking: "/api/bookings",
+} as const satisfies Record<string, keyof paths>;
 
 export class ApiError extends Error {
   status: number;
@@ -51,19 +62,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  getOwner: () => request<Owner>("/api/admin/owner"),
-  listAdminEventTypes: () => request<EventType[]>("/api/admin/event-types"),
+  getOwner: () => request<Owner>(routes.getOwner),
+  listAdminEventTypes: () => request<EventType[]>(routes.listAdminEventTypes),
   createEventType: (payload: CreateEventTypeRequest) =>
-    request<EventType>("/api/admin/event-types", {
+    request<EventType>(routes.createEventType, {
       method: "POST",
       body: JSON.stringify(payload),
     }),
-  listUpcomingBookings: () => request<Booking[]>("/api/admin/bookings/upcoming"),
-  listPublicEventTypes: () => request<PublicEventType[]>("/api/event-types"),
+  listUpcomingBookings: () => request<Booking[]>(routes.listUpcomingBookings),
+  listPublicEventTypes: () => request<PublicEventType[]>(routes.listPublicEventTypes),
   listAvailableSlots: (eventTypeId: string) =>
-    request<Slot[]>(`/api/event-types/${encodeURIComponent(eventTypeId)}/slots`),
+    request<Slot[]>(routes.listAvailableSlots.replace("{eventTypeId}", encodeURIComponent(eventTypeId))),
   createBooking: (payload: CreateBookingRequest) =>
-    request<Booking>("/api/bookings", {
+    request<Booking>(routes.createBooking, {
       method: "POST",
       body: JSON.stringify(payload),
     }),

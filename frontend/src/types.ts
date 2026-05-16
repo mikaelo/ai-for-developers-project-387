@@ -1,69 +1,22 @@
-export type EventTypeId = string;
-export type BookingId = string;
-export type OwnerId = string;
+import type { components, operations } from "./generated/api-types";
 
-export type BookingStatus = "confirmed" | "cancelled";
+type JsonResponse<T> = T extends {
+  responses: { 200: { content: { "application/json": infer Response } } };
+}
+  ? Response
+  : never;
 
-export type ApiErrorCode =
-  | "EventTypeNotFound"
-  | "BookingNotFound"
-  | "SlotUnavailable"
-  | "SlotOutsideBookingWindow"
-  | "InvalidEventDuration"
-  | "ValidationFailed";
+type JsonRequest<T> = T extends {
+  requestBody: { content: { "application/json": infer Request } };
+}
+  ? Request
+  : never;
 
-export type Owner = {
-  id: OwnerId;
-  displayName: string;
-  timezone: string;
-};
-
-export type EventType = {
-  id: EventTypeId;
-  title: string;
-  description: string;
-  durationMinutes: number;
-};
-
-export type PublicEventType = EventType;
-
-export type Slot = {
-  eventTypeId: EventTypeId;
-  startAt: string;
-  endAt: string;
-  durationMinutes: number;
-  available: boolean;
-};
-
-export type Guest = {
-  name: string;
-  email: string;
-};
-
-export type Booking = {
-  id: BookingId;
-  eventTypeId: EventTypeId;
-  eventTypeTitle: string;
-  startAt: string;
-  endAt: string;
-  guest: Guest;
-  status: BookingStatus;
-};
-
-export type CreateEventTypeRequest = {
-  id: EventTypeId;
-  title: string;
-  description: string;
-  durationMinutes: number;
-};
-
-export type CreateBookingRequest = {
-  eventTypeId: EventTypeId;
-  startAt: string;
-  guest: Guest;
-};
-
-export type ApiErrorBody = {
-  code: ApiErrorCode;
-  message: string;
-};
+export type Owner = JsonResponse<operations["AdminApi_getOwner"]>;
+export type EventType = JsonResponse<operations["AdminApi_listEventTypes"]>[number];
+export type PublicEventType = JsonResponse<operations["GuestApi_listPublicEventTypes"]>[number];
+export type Slot = JsonResponse<operations["GuestApi_listAvailableSlots"]>[number];
+export type Booking = JsonResponse<operations["AdminApi_listUpcomingBookings"]>[number];
+export type CreateEventTypeRequest = JsonRequest<operations["AdminApi_createEventType"]>;
+export type CreateBookingRequest = JsonRequest<operations["GuestApi_createBooking"]>;
+export type ApiErrorBody = components["schemas"]["Error"];
