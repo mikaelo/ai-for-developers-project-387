@@ -59,8 +59,12 @@ jobs:
             sleep 2
           done
           curl -fsS http://127.0.0.1:8080/ > /tmp/index.html
+          curl -fsS http://127.0.0.1:8080/event-types/consultation > /tmp/event-type-page.html
+          curl -fsS http://127.0.0.1:8080/event-types/consultation/slots > /tmp/consultation-slots.json
           curl -fsS http://127.0.0.1:8080/admin/bookings > /tmp/admin-bookings.html
           grep -q "Call Calendar" /tmp/index.html
+          grep -q "Call Calendar" /tmp/event-type-page.html
           grep -q "Call Calendar" /tmp/admin-bookings.html
           grep -q "intro-call" /tmp/event-types.json
+          grep -q "consultation" /tmp/consultation-slots.json
           docker stop call-calendar-smoke

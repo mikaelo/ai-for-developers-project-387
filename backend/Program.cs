@@ -83,21 +83,17 @@ app.MapPost("/bookings", (CreateBookingRequest request, ICalendarStore store) =>
         error => Results.Json(error.Body, statusCode: error.StatusCode));
 });
 
+app.MapGet("/", ServeFrontendApp);
+app.MapGet("/admin", ServeFrontendApp);
+app.MapGet("/admin/bookings", ServeFrontendApp);
+app.MapGet("/event-types/{eventTypeId}", ServeFrontendApp);
+
 app.MapFallback(async context =>
 {
     if (HttpMethods.IsGet(context.Request.Method) &&
-        (context.Request.Path == "/" ||
-         context.Request.Headers.Accept.Any(value => value?.Contains("text/html", StringComparison.OrdinalIgnoreCase) == true)))
+        context.Request.Headers.Accept.Any(value => value?.Contains("text/html", StringComparison.OrdinalIgnoreCase) == true))
     {
-        var indexPath = Path.Combine(webRootPath, "index.html");
-        if (File.Exists(indexPath))
-        {
-            context.Response.ContentType = "text/html";
-            await context.Response.SendFileAsync(indexPath);
-            return;
-        }
-
-        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        await SendFrontendApp(context, webRootPath);
         return;
     }
 
@@ -105,6 +101,23 @@ app.MapFallback(async context =>
 });
 
 app.Run();
+
+static Task ServeFrontendApp(HttpContext context) => SendFrontendApp(
+    context,
+    Path.Combine(context.RequestServices.GetRequiredService<IWebHostEnvironment>().ContentRootPath, "wwwroot"));
+
+static async Task SendFrontendApp(HttpContext context, string webRootPath)
+{
+    var indexPath = Path.Combine(webRootPath, "index.html");
+    if (!File.Exists(indexPath))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+
+    context.Response.ContentType = "text/html";
+    await context.Response.SendFileAsync(indexPath);
+}
 
 public partial class Program;
 
