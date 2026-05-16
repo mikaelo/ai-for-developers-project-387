@@ -20,7 +20,7 @@ export function AdminBookingsPage() {
 
       {data && data.length > 0 && (
         <Card withBorder radius="sm" p={0}>
-          <Table striped highlightOnHover verticalSpacing="md">
+          <Table striped highlightOnHover verticalSpacing="md" data-testid="admin-bookings-table">
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Время</Table.Th>

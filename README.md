@@ -29,6 +29,16 @@ Run backend tests:
 npm run backend:test
 ```
 
+Run the end-to-end booking scenario with Playwright:
+
+```bash
+npm run integration:test
+```
+
+The integration scenario starts the real backend and frontend, books an `Intro call`
+as a guest, verifies that a repeated booking for the same slot returns `409`, and
+checks that the owner sees the booking in `/admin/bookings`.
+
 Prism mock API is still available for contract-only frontend work:
 
 ```bash

@@ -24,7 +24,7 @@ export function EventTypesPage() {
       <Grid>
         {data?.map((eventType) => (
           <Grid.Col key={eventType.id} span={{ base: 12, md: 6, lg: 4 }}>
-            <Card withBorder h="100%" radius="sm" p="lg">
+            <Card withBorder h="100%" radius="sm" p="lg" data-testid={`event-type-${eventType.id}`}>
               <Stack h="100%" justify="space-between">
                 <Stack gap="sm">
                   <Group justify="space-between" align="flex-start">

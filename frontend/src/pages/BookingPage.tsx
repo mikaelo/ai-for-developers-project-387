@@ -94,6 +94,8 @@ export function BookingPage() {
                   {daySlots.map((slot) => (
                     <Button
                       key={slot.startAt}
+                      data-testid="slot-button"
+                      data-start-at={slot.startAt}
                       variant={selectedSlot?.startAt === slot.startAt ? "filled" : "light"}
                       leftSection={<IconClock size={15} />}
                       onClick={() => setSelectedSlot(slot)}
